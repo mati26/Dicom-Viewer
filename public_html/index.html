@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Przeglądarka Dicom</title>
+
+        <link href="style.css" rel="stylesheet">
+
+        <!-- cornerstone depends on jQuery so it must be loaded first-->
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+
+        <!-- include the cornerstone library -->
+        <script src="bower_components/cornerstone/dist/cornerstone.min.js"></script>
+        <script src="bower_components/cornerstoneMath/dist/cornerstoneMath.js"></script>  
+        <script src="bower_components/cornerstoneTools/dist/cornerstoneTools.js"></script>
+
+        <script src="bower_components/dicomParser/dist/dicomParser.min.js"></script>  
+        <script src="bower_components/image-jpeg2000/dist/jpx.min.js"></script>
+
+        <script src="bower_components/cornerstoneWADOImageLoader/dist/cornerstoneWADOImageLoader.min.js"></script>  
+
+        <script src="ViewerScript.js"></script>
+    </head>
+
+
+
+    <h1>
+        Przeglądarka Dicom
+    </h1>
+    <div class="menu">
+        <input type="file" id="selectFile" >
+
+            <button type="button" id="zoomIn">Powiększ</button>
+            <button type="button" id="zoomOut">Pomniejsz</button>
+            <button type="button" id="lRotate">Obróć w lewo</button>
+            <button type="button" id="rRotate">Obróć w prawo</button>
+            <button type="button" id="hFlip">Odbij poziomo</button>
+            <button type="button" id="vFlip">Odbij pionowo</button>
+            <button type="button" id="invert">Odwróć</button>
+            <button type="button" id="default">Domyślny</button>
+
+            <br/>
+    </div>
+    
+    <div class ="col-3">
+        fsafsaasf
+    </div>
+    <div class ="col-6">
+        <div class="container">
+            
+
+            <div id="dicomImage" style="width:512px;height:512px;overflow-y: scroll;">
+            </div>
+
+        </div>
+    </div>
+    <div class ="col-3">
+        <div class="metadata">
+            <h4>Dane pacjenta</h4> 
+            Imię i nazwisko: <span data-dicom="x00100010"></span> 
+            <br/>
+            ID: <span data-dicom="x00100020"></span> 
+            <br/>
+            Data urodzenia: <span data-dicom="x00100030"></span>
+            <br/>
+            Płeć: <span data-dicom="x00100040"></span>
+            <br/>
+            Wzrost: <span data-dicom="x00101020"></span>
+            <br/>
+            Waga: <span data-dicom="x00101030"></span>
+            <br/><br/>
+            
+            Lekarz: <span data-dicom="x00321032"></span>
+            <br/>
+            Zlecone badanie: <span data-dicom="x00321060"></span>
+            <br/><br/>
+
+            Opis: <span data-dicom="x00081030"></span>
+            <br/>
+            Data: <span data-dicom="x00080020"></span>
+            <br/>
+
+            Opis serii: <span data-dicom="x0008103e"></span>
+            <br/><br/>
+
+            Badanie przeprowadzał: <span data-dicom="x00081070"></span> 
+            <br/>
+            Producent urządzenia: <span data-dicom="x00080070"></span>
+            <br/>
+            Model: <span data-dicom="x00081090"></span>
+            <br/>
+        </div>
+    </div>
+
+</body>
+</html>
