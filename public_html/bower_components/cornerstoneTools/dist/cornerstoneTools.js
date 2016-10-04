@@ -1657,7 +1657,7 @@ if (typeof cornerstoneTools === 'undefined') {
     // Define a callback to get your text annotation
     // This could be used, e.g. to open a modal
     function getTextCallback(doneChangingTextCallback) {
-        doneChangingTextCallback(prompt('Enter your annotation:'));
+        doneChangingTextCallback(prompt('Wpisz swoją etykietę:'));
     }
 
     var configuration = {
@@ -3802,8 +3802,12 @@ if (typeof cornerstoneTools === 'undefined') {
             };
 
             var meanStdDev = calculateMeanStdDev(pixels, ellipse);
-            var area = (width * eventData.image.columnPixelSpacing) * (height * eventData.image.rowPixelSpacing);
-            var areaText = 'Area: ' + area.toFixed(2) + ' mm^2';
+            var area = (width * (eventData.image.columnPixelSpacing||1) * (height * (eventData.image.rowPixelSpacing||1)));
+            var suffix = ' mm';
+            if (!eventData.image.rowPixelSpacing || !eventData.image.columnPixelSpacing) {
+                suffix = ' pixels';
+            }
+            var areaText = 'Pole: ' + area.toFixed(2) + suffix  + String.fromCharCode(178);
 
             // Draw text
             context.font = font;
@@ -3814,8 +3818,8 @@ if (typeof cornerstoneTools === 'undefined') {
             var textY = centerY < (eventData.image.rows / 2) ? centerY + (heightCanvas / 2): centerY - (heightCanvas / 2);
 
             context.fillStyle = color;
-            cornerstoneTools.drawTextBox(context, 'Mean: ' + meanStdDev.mean.toFixed(2), textX, textY - fontHeight - 5, color);
-            cornerstoneTools.drawTextBox(context, 'StdDev: ' + meanStdDev.stdDev.toFixed(2), textX, textY, color);
+           // cornerstoneTools.drawTextBox(context, 'Mean: ' + meanStdDev.mean.toFixed(2), textX, textY - fontHeight - 5, color);
+           // cornerstoneTools.drawTextBox(context, 'StdDev: ' + meanStdDev.stdDev.toFixed(2), textX, textY, color);
             cornerstoneTools.drawTextBox(context, areaText, textX, textY + fontHeight + 5, color);
             context.restore();
         }

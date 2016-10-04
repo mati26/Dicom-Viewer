@@ -10,16 +10,24 @@
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
 
         <!-- include the cornerstone library -->
-        <script src="bower_components/cornerstone/dist/cornerstone.min.js"></script>
+        <script src="bower_components/cornerstone/dist/cornerstone.js"></script>
         <script src="bower_components/cornerstoneMath/dist/cornerstoneMath.js"></script>  
         <script src="bower_components/cornerstoneTools/dist/cornerstoneTools.js"></script>
 
         <script src="bower_components/dicomParser/dist/dicomParser.min.js"></script>  
         <script src="bower_components/image-jpeg2000/dist/jpx.min.js"></script>
 
-        <script src="bower_components/cornerstoneWADOImageLoader/dist/cornerstoneWADOImageLoader.min.js"></script>  
-
+        <script src="bower_components/cornerstoneWADOImageLoader/dist/cornerstoneWADOImageLoader.js"></script>  
+        <script src="bower_components/jquery-ui/jquery-ui.min.js"></script> 
+        <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.css">
         <script src="ViewerScript.js"></script>
+
+       
+    
+            
+        <!-- <link href="https://rawgit.com/chafey/cornerstoneTools/master/examples/bootstrap.min.css" rel="stylesheet">
+        <link href="https://rawgit.com/chafey/cornerstoneTools/master/examples/cornerstone.min.css" rel="stylesheet">
+        -->
     </head>
 
 
@@ -28,67 +36,140 @@
         Przeglądarka Dicom
     </h1>
     <div class="menu">
-        <input type="file" id="selectFile" >
 
-            <button type="button" id="zoomIn">Powiększ</button>
-            <button type="button" id="zoomOut">Pomniejsz</button>
-            <button type="button" id="lRotate">Obróć w lewo</button>
-            <button type="button" id="rRotate">Obróć w prawo</button>
-            <button type="button" id="hFlip">Odbij poziomo</button>
-            <button type="button" id="vFlip">Odbij pionowo</button>
-            <button type="button" id="invert">Odwróć</button>
-            <button type="button" id="default">Domyślny</button>
 
-            <br/>
+        <input type="file" name="upload" id="selectFile" multiple="multiple"/>
+
+
+        <button type="button" class="button" id="zoomIn">Powiększ</button>
+        <button type="button" class="button" id="zoomOut">Pomniejsz</button>
+        <button type="button" class="button" id="lRotate">Obróć w lewo</button>
+        <button type="button" class="button" id="rRotate">Obróć w prawo</button>
+        <button type="button" class="button" id="hFlip">Odbij poziomo</button>
+        <button type="button" class="button" id="vFlip">Odbij pionowo</button>
+        <button type="button" class="button" id="invert">Odwróć</button>
+        <button type="button" class="button" id="default">Domyślny</button>
+        
+        
+        <br/>
     </div>
-    
+
     <div class ="col-3">
-        fsafsaasf
+       
+        <div><span id="pixCoords"></span></div>
+        <br/>
+          <label for="amount">Min - max:</label>
+  <input type="text" name="myInput" id="amount" readonly style="border:0;">
+  <div id="slider-range"></div>
+  
+  
+        <br/>
+
+        Korekcja gamma:
+        <br/>
+        <input type="range" id="gammaRange" min="0" max="2" step="0.1"/>
+        <span id="gammaValue"></span>
+        <br/>
+
+        <div id="stackDiv">
+            Stack:
+            <br/>
+            <input type="range" id="stackRange" min="0" step="1" value="0"/>
+            <span id="stackNum"/>
+        </div>
+        <br/>
+        Zapisz:
+        <input id="filename" type="text"/>
+        <button type="button" class="button" id="save">Zapisz</button>
+        <br/>
+        Narzędzie:
+        </br>
+        <div class="tools">
+        <a id="nonTool" class="linkButton">Brak Narzędzia</a>
+        <a id="length" class="linkButton">Odległość</a>
+        <a id="angle" class="linkButton">Kąt</a>
+        
+        <a id="rectangleROI" class="linkButton">Prostokąt</a>
+        <a id="label" class="linkButton">Etykieta</a>
+        </div>
+         <br/><br/>
+
+        <div id="dicomMini" style="width:128px;height:128px;"></div>
+        <br/><br/>
+        <!--<<div><span id="dicomSize"></span></div>
+        div><span id="dicomMiniSize"></span></div>
+        
+        <div><span id="globalCounter"></span></div
+        <div><span id="coords"></span></div>
+        <br/>>-->
+
+        <!-- <div><span id="zoomcoord"></span></div>
+        <div><span id="canvasBig"></span></div> 
+        
+        <br/><br/>
+        <div><span id="trans"></span></div>
+        <br/>
+        <br/>
+        Testowe coordinates:
+        <br/>
+        <div><span id="testCoords"></span></div>
+        <br/>
+        <div><span id="elRect"></span></div>-->
     </div>
     <div class ="col-6">
         <div class="container">
-            
 
-            <div id="dicomImage" style="width:512px;height:512px;overflow-y: scroll;">
+
+            <div id="dicomImage" style="width:512px;height:512px;">
             </div>
 
         </div>
     </div>
     <div class ="col-3">
+        
+        
+         <input class="form-control" type="text" id="wadoURL" placeholder="Wpisz WADO URL" />
+        <br/>
+        <button type="button" class="button" id="download">Ściągnij z serwera</button>
+        <br/>
         <div class="metadata">
             <h4>Dane pacjenta</h4> 
-            Imię i nazwisko: <span data-dicom="x00100010"></span> 
+            Imię i nazwisko: <span class="meta" data-dicom="x00100010"></span> 
             <br/>
-            ID: <span data-dicom="x00100020"></span> 
+            ID: <span class="meta" data-dicom="x00100020"></span> 
             <br/>
-            Data urodzenia: <span data-dicom="x00100030"></span>
+            Data urodzenia: <span class="meta" data-dicom="x00100030"></span>
             <br/>
-            Płeć: <span data-dicom="x00100040"></span>
+            Płeć: <span class="meta" data-dicom="x00100040"></span>
             <br/>
-            Wzrost: <span data-dicom="x00101020"></span>
+            Wzrost: <span class="meta" data-dicom="x00101020"></span>
             <br/>
-            Waga: <span data-dicom="x00101030"></span>
-            <br/><br/>
-            
-            Lekarz: <span data-dicom="x00321032"></span>
-            <br/>
-            Zlecone badanie: <span data-dicom="x00321060"></span>
+            Waga: <span class="meta" data-dicom="x00101030"></span>
             <br/><br/>
 
-            Opis: <span data-dicom="x00081030"></span>
+            Lekarz: <span class="meta" data-dicom="x00321032"></span>
             <br/>
-            Data: <span data-dicom="x00080020"></span>
+            Typ badania: <span class="meta" data-dicom="x00080060"></span>
             <br/>
-
-            Opis serii: <span data-dicom="x0008103e"></span>
+            Zlecone badanie: <span class="meta" data-dicom="x00321060"></span>
             <br/><br/>
 
-            Badanie przeprowadzał: <span data-dicom="x00081070"></span> 
+            Opis: <span class="meta" data-dicom="x00081030"></span>
             <br/>
-            Producent urządzenia: <span data-dicom="x00080070"></span>
+            Data: <span class="meta" data-dicom="x00080020"></span>
             <br/>
-            Model: <span data-dicom="x00081090"></span>
+
+            Opis serii: <span class="meta" data-dicom="x0008103e"></span>
+            <br/><br/>
+
+            Badanie przeprowadzał: <span class="meta" data-dicom="x00081070"></span> 
             <br/>
+            Producent urządzenia: <span class="meta" data-dicom="x00080070"></span>
+            <br/>
+            Model: <span class="meta" data-dicom="x00081090"></span>
+            <br/>
+            <span id="numOfFrames"  data-dicom="x00280008"></span>
+
         </div>
     </div>
 
