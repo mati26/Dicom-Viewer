@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="DicomViewer">
     <head>
         <meta charset="UTF-8">
         <title>Przeglądarka Dicom</title>
@@ -8,6 +8,7 @@
 
         <!-- cornerstone depends on jQuery so it must be loaded first-->
         <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="bower_components/angular/angular.min.js"></script>
 
         <!-- include the cornerstone library -->
         <script src="bower_components/cornerstone/dist/cornerstone.js"></script>
@@ -22,12 +23,10 @@
         <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.css">
         <script src="ViewerScript.js"></script>
 
-       
-    
-            
-        <!-- <link href="https://rawgit.com/chafey/cornerstoneTools/master/examples/bootstrap.min.css" rel="stylesheet">
-        <link href="https://rawgit.com/chafey/cornerstoneTools/master/examples/cornerstone.min.css" rel="stylesheet">
-        -->
+
+
+
+
     </head>
 
 
@@ -35,34 +34,34 @@
     <h1>
         Przeglądarka Dicom
     </h1>
-    <div class="menu">
+    <div class="menu" ng-controller="ImageOptionsController">
 
 
         <input type="file" name="upload" id="selectFile" multiple="multiple"/>
 
 
-        <button type="button" class="button" id="zoomIn">Powiększ</button>
-        <button type="button" class="button" id="zoomOut">Pomniejsz</button>
-        <button type="button" class="button" id="lRotate">Obróć w lewo</button>
-        <button type="button" class="button" id="rRotate">Obróć w prawo</button>
-        <button type="button" class="button" id="hFlip">Odbij poziomo</button>
-        <button type="button" class="button" id="vFlip">Odbij pionowo</button>
-        <button type="button" class="button" id="invert">Odwróć</button>
-        <button type="button" class="button" id="default">Domyślny</button>
-        
-        
+        <button type="button" class="button" ng-click="zoomIn()">Powiększ</button>
+        <button type="button" class="button" ng-click="zoomOut()">Pomniejsz</button>
+        <button type="button" class="button" ng-click="lRotate()">Obróć w lewo</button>
+        <button type="button" class="button" ng-click="rRotate()">Obróć w prawo</button>
+        <button type="button" class="button" ng-click="hFlip()">Odbij poziomo</button>
+        <button type="button" class="button" ng-click="vFlip()">Odbij pionowo</button>
+        <button type="button" class="button" ng-click="invert()">Odwróć</button>
+        <button type="button" class="button" ng-click="defaultViewport()">Domyślny</button>
+
+
         <br/>
     </div>
 
     <div class ="col-3">
-       
+
         <div><span id="pixCoords"></span></div>
         <br/>
-          <label for="amount">Min - max:</label>
-  <input type="text" name="myInput" id="amount" readonly style="border:0;">
-  <div id="slider-range"></div>
-  
-  
+        <label for="amount">Min - max:</label>
+        <input type="text" name="myInput" id="amount" readonly style="border:0;">
+        <div id="slider-range"></div>
+
+
         <br/>
 
         Korekcja gamma:
@@ -85,14 +84,14 @@
         Narzędzie:
         </br>
         <div class="tools">
-        <a id="nonTool" class="linkButton">Brak Narzędzia</a>
-        <a id="length" class="linkButton">Odległość</a>
-        <a id="angle" class="linkButton">Kąt</a>
-        
-        <a id="rectangleROI" class="linkButton">Prostokąt</a>
-        <a id="label" class="linkButton">Etykieta</a>
+            <a id="nonTool" class="linkButton">Brak Narzędzia</a>
+            <a id="length" class="linkButton">Odległość</a>
+            <a id="angle" class="linkButton">Kąt</a>
+
+            <a id="rectangleROI" class="linkButton">Prostokąt</a>
+            <a id="label" class="linkButton">Etykieta</a>
         </div>
-         <br/><br/>
+        <br/><br/>
 
         <div id="dicomMini" style="width:128px;height:128px;"></div>
         <br/><br/>
@@ -126,9 +125,9 @@
         </div>
     </div>
     <div class ="col-3">
-        
-        
-         <input class="form-control" type="text" id="wadoURL" placeholder="Wpisz WADO URL" />
+
+
+        <input class="form-control" type="text" id="wadoURL" placeholder="Wpisz WADO URL" />
         <br/>
         <button type="button" class="button" id="download">Ściągnij z serwera</button>
         <br/>
