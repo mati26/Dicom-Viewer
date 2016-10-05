@@ -22,6 +22,7 @@
         <script src="bower_components/jquery-ui/jquery-ui.min.js"></script> 
         <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.css">
         <script src="ViewerScript.js"></script>
+        <script src="imageTools.js"></script>
 
 
 
@@ -83,9 +84,9 @@
         <br/>
         Narzędzie:
         </br>
-        <div class="tools">
+        <div class="tools" ng-controller="ToolsController">
             <a id="nonTool" class="linkButton">Brak Narzędzia</a>
-            <a id="length" class="linkButton">Odległość</a>
+            <a  class="linkButton" ng-click="length()">Odległość</a>
             <a id="angle" class="linkButton">Kąt</a>
 
             <a id="rectangleROI" class="linkButton">Prostokąt</a>
