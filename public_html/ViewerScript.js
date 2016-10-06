@@ -120,10 +120,13 @@ var tool = false;
     app.controller('ToolsController',
             function ToolsController($scope,imageTools) {
 
+                $scope.enabledTool = imageTools.enabledTool;
+                $scope.noTool = imageTools.noTool;
                 $scope.length = imageTools.length;
                 $scope.angle = imageTools.angle;
                 $scope.rectangleROI = imageTools.rectangleROI;
                 $scope.label = imageTools.label;
+                
                 
             });
     var files = [];
@@ -364,13 +367,6 @@ var tool = false;
         reader.readAsArrayBuffer(file);
     }
 
-    function activate(id)
-    {
-        $('a').removeClass('active');
-        $(id).addClass('active');
-    }
-
-
 
     $(document).ready(function () {
 
@@ -416,7 +412,9 @@ var tool = false;
             $('#stackNum').text(parseInt(stackRange.value) + 1 + "/" + (parseInt(stackRange.max) + 1));
             noTool();
         });
+        
         $("#stackRange").on("input", selectImage);
+        
         function downloadAndView() {
 
             server = true;
@@ -442,7 +440,7 @@ var tool = false;
                     imageIds.push(url + '?frame=' + (i + 0));
                 stack.imageIds = imageIds;
                 loadAndViewImage(imageIds[0]);
-                //dumpFile(files[0]);
+                
                 //document.getElementById("filename").value = files[0].name.replace("dcm", "png");
 
                 stackRange = document.getElementById('stackRange');
@@ -587,53 +585,7 @@ var tool = false;
             cornerstoneTools.saveAs(element, filename);
             return false;
         });
-        function disableAllTools()
-        {
-            cornerstoneTools.mouseInput.disable(element);
-            cornerstoneTools.length.deactivate(element, 1);
-            cornerstoneTools.angle.deactivate(element, 1);
-            cornerstoneTools.rectangleRoi.deactivate(element, 1);
-            cornerstoneTools.arrowAnnotate.deactivate(element, 1);
-            tool = false;
-        }
-
-
-
-        function noTool()
-        {
-            activate('#nonTool');
-            disableAllTools();
-        }
-
-        $('#nonTool').click(noTool);
-        $('#length').click(function () {
-            activate('#length');
-            disableAllTools();
-            tool = true;
-            cornerstoneTools.mouseInput.enable(element);
-            cornerstoneTools.length.activate(element, 1);
-        });
-        $('#angle').click(function () {
-            activate('#angle');
-            disableAllTools();
-            tool = true;
-            cornerstoneTools.mouseInput.enable(element);
-            cornerstoneTools.angle.activate(element, 1);
-        });
-        $('#rectangleROI').click(function () {
-            activate('#rectangleROI');
-            disableAllTools();
-            tool = true;
-            cornerstoneTools.mouseInput.enable(element);
-            cornerstoneTools.rectangleRoi.activate(element, 1);
-        });
-        $('#label').click(function () {
-            activate('#label');
-            disableAllTools();
-            tool = true;
-            cornerstoneTools.mouseInput.enable(element);
-            cornerstoneTools.arrowAnnotate.activate(element, 1);
-        });
+      
         $(element).mousemove(function (event)
         {
             var pixelCoords = cornerstone.pageToPixel(element, event.pageX, event.pageY);

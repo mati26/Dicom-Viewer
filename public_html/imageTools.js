@@ -2,7 +2,7 @@
 
     var imageTools = function () {
 
-        
+        var enabledTool = 'noTool';
         var element = $('#dicomImage').get(0);
 
         function disableAllTools()
@@ -15,25 +15,14 @@
             tool = false;
         }
 
-
-
-        function noTool()
-        {
-            activate('#nonTool');
+        var noTool = function () {
+            this.enabledTool = 'noTool';
             disableAllTools();
         }
 
-        var activate = function(id)
-        {
-            $('a').removeClass('active');
-            $(id).addClass('active');
-        }
-
-        $('#nonTool').click(noTool);
-
         var length = function () {
-              console.log("gaga");
-            activate('#length');
+
+            this.enabledTool = 'length';
             disableAllTools();
             tool = true;
             cornerstoneTools.mouseInput.enable(element);
@@ -41,7 +30,7 @@
         };
 
         var angle = function () {
-            activate('#angle');
+            this.enabledTool = 'angle';
             disableAllTools();
             tool = true;
             cornerstoneTools.mouseInput.enable(element);
@@ -49,7 +38,7 @@
         };
 
         var rectangleROI = function () {
-            activate('#rectangleROI');
+            this.enabledTool = 'rectangleROI';
             disableAllTools();
             tool = true;
             cornerstoneTools.mouseInput.enable(element);
@@ -57,22 +46,20 @@
         };
 
         var label = function () {
-            activate('#label');
+            this.enabledTool = 'label';
             disableAllTools();
             tool = true;
             cornerstoneTools.mouseInput.enable(element);
             cornerstoneTools.arrowAnnotate.activate(element, 1);
         };
-        var test= function() {
-          
-        }
 
         return {
+            enabledTool: enabledTool,
+            noTool: noTool,
             length: length,
             angle: angle,
             rectangleROI: rectangleROI,
-            label: label,
-            test: test
+            label: label
         };
     };
 

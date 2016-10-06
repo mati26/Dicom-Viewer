@@ -85,12 +85,11 @@
         Narzędzie:
         </br>
         <div class="tools" ng-controller="ToolsController">
-            <a id="nonTool" class="linkButton">Brak Narzędzia</a>
-            <a  class="linkButton" ng-click="length()">Odległość</a>
-            <a id="angle" class="linkButton">Kąt</a>
-
-            <a id="rectangleROI" class="linkButton">Prostokąt</a>
-            <a id="label" class="linkButton">Etykieta</a>
+            <a class="linkButton" ng-click="noTool()" ng-class="{active: enabledTool === 'noTool'}">Brak Narzędzia</a>
+            <a class="linkButton" ng-click="length()" ng-class="{active: enabledTool === 'length'}">Odległość</a>
+            <a class="linkButton" ng-click="angle()" ng-class="{active: enabledTool === 'angle'}">Kąt</a>
+            <a class="linkButton" ng-click="rectangleROI()" ng-class="{active: enabledTool === 'rectangleROI'}">Prostokąt</a>
+            <a class="linkButton" ng-click="label()" ng-class="{active: enabledTool === 'label'}">Etykieta</a>
         </div>
         <br/><br/>
 
