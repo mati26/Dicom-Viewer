@@ -21,10 +21,6 @@
         <script src="bower_components/cornerstoneWADOImageLoader/dist/cornerstoneWADOImageLoader.js"></script>  
         <script src="bower_components/jquery-ui/jquery-ui.min.js"></script> 
         <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.css">
-        <script src="ViewerScript.js"></script>
-        <script src="imageTools.js"></script>
-
-
 
 
 
@@ -35,23 +31,24 @@
     <h1>
         Przeglądarka Dicom
     </h1>
-    <div class="menu" ng-controller="ImageOptionsController">
+    <div class="menu" >
+
+        <div ng-controller="LoadImageController">
+            <input type="file" name="upload" multiple="multiple"  onchange="angular.element(this).scope().fileNameChanged(this.files)"/>
+        </div>
+        <div ng-controller="ImageOptionsController">
+            <button type="button" class="button" ng-click="zoomIn()">Powiększ</button>
+            <button type="button" class="button" ng-click="zoomOut()">Pomniejsz</button>
+            <button type="button" class="button" ng-click="lRotate()">Obróć w lewo</button>
+            <button type="button" class="button" ng-click="rRotate()">Obróć w prawo</button>
+            <button type="button" class="button" ng-click="hFlip()">Odbij poziomo</button>
+            <button type="button" class="button" ng-click="vFlip()">Odbij pionowo</button>
+            <button type="button" class="button" ng-click="invert()">Odwróć</button>
+            <button type="button" class="button" ng-click="defaultViewport()">Domyślny</button>
 
 
-        <input type="file" name="upload" id="selectFile" multiple="multiple"/>
-
-
-        <button type="button" class="button" ng-click="zoomIn()">Powiększ</button>
-        <button type="button" class="button" ng-click="zoomOut()">Pomniejsz</button>
-        <button type="button" class="button" ng-click="lRotate()">Obróć w lewo</button>
-        <button type="button" class="button" ng-click="rRotate()">Obróć w prawo</button>
-        <button type="button" class="button" ng-click="hFlip()">Odbij poziomo</button>
-        <button type="button" class="button" ng-click="vFlip()">Odbij pionowo</button>
-        <button type="button" class="button" ng-click="invert()">Odwróć</button>
-        <button type="button" class="button" ng-click="defaultViewport()">Domyślny</button>
-
-
-        <br/>
+            <br/>
+        </div>
     </div>
 
     <div class ="col-3">
@@ -79,18 +76,20 @@
         </div>
         <br/>
         Zapisz:
-        <input id="filename" type="text"/>
-        <button type="button" class="button" id="save">Zapisz</button>
+        <div ng-controller="SaveImageController">
+        <input type="text" ng-model="filename"/>
+        <button type="button" class="button" ng-click="save()">Zapisz</button>
+        </div>
         <br/>
         Narzędzie:
         </br>
-        <div class="tools" ng-controller="ToolsController">
-            <a class="linkButton" ng-click="noTool()" ng-class="{active: enabledTool === 'noTool'}">Brak Narzędzia</a>
-            <a class="linkButton" ng-click="length()" ng-class="{active: enabledTool === 'length'}">Odległość</a>
-            <a class="linkButton" ng-click="angle()" ng-class="{active: enabledTool === 'angle'}">Kąt</a>
-            <a class="linkButton" ng-click="rectangleROI()" ng-class="{active: enabledTool === 'rectangleROI'}">Prostokąt</a>
-            <a class="linkButton" ng-click="label()" ng-class="{active: enabledTool === 'label'}">Etykieta</a>
-        </div>
+          <div class="tools" ng-controller="ImageToolsController">
+              <a class="linkButton" ng-click="noTool()" ng-class="{active: getTool() === 'noTool'}">Brak Narzędzia</a>
+              <a class="linkButton" ng-click="length()" ng-class="{active: getTool() === 'length'}">Odległość</a>
+              <a class="linkButton" ng-click="angle()" ng-class="{active: getTool() === 'angle'}">Kąt</a>
+              <a class="linkButton" ng-click="rectangleROI()" ng-class="{active: getTool() === 'rectangleROI'}">Prostokąt</a>
+              <a class="linkButton" ng-click="label()" ng-class="{active: getTool() === 'label'}">Etykieta</a>
+          </div>
         <br/><br/>
 
         <div id="dicomMini" style="width:128px;height:128px;"></div>
@@ -131,46 +130,56 @@
         <br/>
         <button type="button" class="button" id="download">Ściągnij z serwera</button>
         <br/>
-        <div class="metadata">
+        <div  class="metdata">
             <h4>Dane pacjenta</h4> 
-            Imię i nazwisko: <span class="meta" data-dicom="x00100010"></span> 
+            Imię i nazwisko: <span data-dicom="x00100010"></span> 
             <br/>
-            ID: <span class="meta" data-dicom="x00100020"></span> 
+            ID: <span  data-dicom="x00100020"></span> 
             <br/>
-            Data urodzenia: <span class="meta" data-dicom="x00100030"></span>
+            Data urodzenia: <span data-dicom="x00100030"></span>
             <br/>
-            Płeć: <span class="meta" data-dicom="x00100040"></span>
+            Płeć: <span  data-dicom="x00100040"></span>
             <br/>
-            Wzrost: <span class="meta" data-dicom="x00101020"></span>
+            Wzrost: <span data-dicom="x00101020"></span>
             <br/>
-            Waga: <span class="meta" data-dicom="x00101030"></span>
+            Waga: <span data-dicom="x00101030"></span>
             <br/><br/>
 
-            Lekarz: <span class="meta" data-dicom="x00321032"></span>
+            Lekarz: <span data-dicom="x00321032"></span>
             <br/>
-            Typ badania: <span class="meta" data-dicom="x00080060"></span>
+            Typ badania: <span data-dicom="x00080060"></span>
             <br/>
-            Zlecone badanie: <span class="meta" data-dicom="x00321060"></span>
+            Zlecone badanie: <span  data-dicom="x00321060"></span>
             <br/><br/>
 
-            Opis: <span class="meta" data-dicom="x00081030"></span>
+            Opis: <span  data-dicom="x00081030"></span>
             <br/>
-            Data: <span class="meta" data-dicom="x00080020"></span>
+            Data: <span data-dicom="x00080020"></span>
             <br/>
 
-            Opis serii: <span class="meta" data-dicom="x0008103e"></span>
+            Opis serii: <span data-dicom="x0008103"></span>
             <br/><br/>
 
-            Badanie przeprowadzał: <span class="meta" data-dicom="x00081070"></span> 
+            Badanie przeprowadzał: <span  data-dicom="x00081070"></span> 
             <br/>
-            Producent urządzenia: <span class="meta" data-dicom="x00080070"></span>
+            Producent urządzenia: <span  data-dicom="x00080070"></span>
             <br/>
-            Model: <span class="meta" data-dicom="x00081090"></span>
-            <br/>
-            <span id="numOfFrames"  data-dicom="x00280008"></span>
-
+            Model: <span data-dicom="x00081090"></span>
         </div>
     </div>
-
+    <script src="app.js"></script>
+    <script src="ImageOptions.js"></script>
+    <script src="ImageOptionsController.js"></script>
+    <script src="imageTools.js"></script>
+    <script src="imageToolsController.js"></script>
+    <script src="Metadata.js"></script>
+    <script src="LoadImageController.js"></script>
+    <script src="LoadImage.js"></script>
+     <script src="Elements.js"></script>
+     <script src="MiniRectangle.js"></script>
+     <script src="ViewportHandling.js"></script>
+     <script src="SaveImageController.js"></script>
+     <script src="SaveImage.js"></script>
 </body>
+
 </html>

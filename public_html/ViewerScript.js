@@ -1,19 +1,194 @@
 var tool = false;
 (function () {
     var app = angular.module("DicomViewer", []);
-    
-    app.controller('ImageOptionsController',
-            function ImageOptionsController($scope) {
 
+  var ImageOptionsController = function ($scope,imageTools) {
 
-                var element = $('#dicomImage').get(0);
-                var elementMini = $('#dicomMini').get(0);
+        var element = $('#dicomImage').get(0);
+        var elementMini = $('#dicomMini').get(0);
 
-                $scope.zoomIn = function () {
+        $scope.zoomIn = function () {
 
+            var viewport = cornerstone.getViewport(element);
+            viewport.scale += 0.25;
+            cornerstone.setViewport(element, viewport);
+            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+            clearCanvas(enabledElementMini.canvas);
+            var tempScale = enabledElementMini.viewport.scale;
+            cornerstone.reset(elementMini);
+            viewport.scale = tempScale;
+            viewport.translation.x = 0;
+            viewport.translation.y = 0;
+            cornerstone.setViewport(elementMini, viewport);
+            drawMiniRect(element, elementMini);
+        };
+        $scope.zoomOut = function () {
+            var viewport = cornerstone.getViewport(element);
+            viewport.scale -= 0.25;
+            cornerstone.setViewport(element, viewport);
+            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+            clearCanvas(enabledElementMini.canvas);
+            var tempScale = enabledElementMini.viewport.scale;
+            cornerstone.reset(elementMini);
+            viewport.scale = tempScale;
+            viewport.translation.x = 0;
+            viewport.translation.y = 0;
+            cornerstone.setViewport(elementMini, viewport);
+            drawMiniRect(element, elementMini);
+        };
+        $scope.lRotate = function () {
+            var viewport = cornerstone.getViewport(element);
+            viewport.rotation -= 90;
+            cornerstone.setViewport(element, viewport);
+            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+            clearCanvas(enabledElementMini.canvas);
+            var viewportMini = cornerstone.getViewport(elementMini);
+            viewportMini.rotation -= 90;
+            cornerstone.setViewport(elementMini, viewportMini);
+            drawMiniRect(element, elementMini);
+        };
+        $scope.rRotate = function () {
+            var viewport = cornerstone.getViewport(element);
+            viewport.rotation += 90;
+            cornerstone.setViewport(element, viewport);
+            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+            clearCanvas(enabledElementMini.canvas);
+            var viewportMini = cornerstone.getViewport(elementMini);
+            viewportMini.rotation += 90;
+            cornerstone.setViewport(elementMini, viewportMini);
+            drawMiniRect(element, elementMini);
+        }
+
+        //odbij poziomo
+        $scope.hFlip = function () {
+            var viewport = cornerstone.getViewport(element);
+            viewport.hflip = !viewport.hflip;
+            cornerstone.setViewport(element, viewport);
+            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+            clearCanvas(enabledElementMini.canvas);
+            var viewportMini = cornerstone.getViewport(elementMini);
+            viewportMini.hflip = !viewportMini.hflip;
+            cornerstone.setViewport(elementMini, viewportMini);
+            drawMiniRect(element, elementMini);
+        };
+        //odbij pionowo
+        $scope.vFlip = function () {
+            var viewport = cornerstone.getViewport(element);
+            viewport.vflip = !viewport.vflip;
+            cornerstone.setViewport(element, viewport);
+            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+            clearCanvas(enabledElementMini.canvas);
+            var viewportMini = cornerstone.getViewport(elementMini);
+            viewportMini.vflip = !viewportMini.vflip;
+            cornerstone.setViewport(elementMini, viewportMini);
+            drawMiniRect(element, elementMini);
+        };
+        $scope.invert = function () {
+            var viewport = cornerstone.getViewport(element);
+            if (viewport.invert === true) {
+                viewport.invert = false;
+            } else {
+                viewport.invert = true;
+            }
+            cornerstone.setViewport(element, viewport);
+            var viewportMini = cornerstone.getViewport(elementMini);
+            if (viewportMini.invert === true) {
+                viewportMini.invert = false;
+            } else {
+                viewportMini.invert = true;
+            }
+            cornerstone.setViewport(elementMini, viewportMini);
+            drawMiniRect(element, elementMini);
+        }
+
+        $scope.defaultViewport = function () {
+            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+            clearCanvas(enabledElementMini.canvas);
+            cornerstone.reset(elementMini);
+            cornerstone.reset(element);
+            document.getElementById("gammaRange").value = 1;
+            document.getElementById("gammaValue").innerHTML = 1;
+
+            $("#slider-range").slider('values', 0, 0);
+            $("#slider-range").slider('values', 1, 255);
+            $("#amount").val(mapRange([0, 255], [0, 1], $("#slider-range").slider("values", 0)).toFixed(2) + ' - ' + mapRange([0, 255], [0, 1], $("#slider-range").slider("values", 1)).toFixed(2));
+        }
+
+  }
+        function clearCanvas(cnv) {
+            var ctx = cnv.getContext('2d'); // gets reference to canvas context
+            ctx.beginPath(); // clear existing drawing paths
+            ctx.save(); // store the current transformation matrix
+
+            // Use the identity matrix while clearing the canvas
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, cnv.width, cnv.height);
+            ctx.restore(); // restore the transform
+        }
+
+        function drawMiniRect(element, elementMini)
+        {
+            var enabledElement = cornerstone.getEnabledElement(element);
+            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+            var c = enabledElementMini.canvas;
+            var ctx = c.getContext("2d");
+            ctx.strokeStyle = "orange";
+            ctx.lineWidth = "8";
+            var elementRect = element.getBoundingClientRect();
+            var pixelCoordsLeftTop = cornerstone.pageToPixel(element, elementRect.left, elementRect.top);
+            var pixelCoordsRightBottom = cornerstone.pageToPixel(element, elementRect.right, elementRect.bottom);
+            x1 = pixelCoordsLeftTop.x;
+            y1 = pixelCoordsLeftTop.y;
+            x2 = pixelCoordsRightBottom.x - pixelCoordsLeftTop.x;
+            y2 = pixelCoordsRightBottom.y - pixelCoordsLeftTop.y;
+            deltax = enabledElement.viewport.translation.x * enabledElementMini.viewport.scale;
+            deltay = enabledElement.viewport.translation.y * enabledElementMini.viewport.scale;
+            ctx.rect(x1 - deltax, y1 - deltay, x2, y2);
+            ctx.stroke();
+        }
+        
+         //zoomowanie kolkiem myszy
+        $('#dicomImage').on('mousewheel DOMMouseScroll', function (e) {
+            if (e.originalEvent.wheelDelta < 0 || e.originalEvent.detail > 0) {
+                var viewport = cornerstone.getViewport(element);
+                viewport.scale -= 0.25;
+
+                cornerstone.setViewport(element, viewport);
+            } else {
+                var viewport = cornerstone.getViewport(element);
+                viewport.scale += 0.25;
+
+                cornerstone.setViewport(element, viewport);
+            }
+            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+            clearCanvas(enabledElementMini.canvas);
+            var tempScale = enabledElementMini.viewport.scale;
+            cornerstone.reset(elementMini);
+            viewport.scale = tempScale;
+            viewport.translation.x = 0;
+            viewport.translation.y = 0;
+            cornerstone.setViewport(elementMini, viewport);
+            drawMiniRect(element, elementMini);
+            //prevent page fom scrolling
+            return false;
+        });
+        
+        //przesuwanie obrazu
+        $('#dicomImage').mousedown(function (e) {
+            if(imageTools.enabledTool === "noTool")
+            {
+                var lastX = e.pageX;
+                var lastY = e.pageY;
+                $(document).mousemove(function (e) {
+                    var deltaX = e.pageX - lastX,
+                            deltaY = e.pageY - lastY;
+                    lastX = e.pageX;
+                    lastY = e.pageY;
                     var viewport = cornerstone.getViewport(element);
-                    viewport.scale += 0.25;
+                    viewport.translation.x += (deltaX / viewport.scale);
+                    viewport.translation.y += (deltaY / viewport.scale);
                     cornerstone.setViewport(element, viewport);
+                    var enabledElement = cornerstone.getEnabledElement(element);
                     var enabledElementMini = cornerstone.getEnabledElement(elementMini);
                     clearCanvas(enabledElementMini.canvas);
                     var tempScale = enabledElementMini.viewport.scale;
@@ -23,102 +198,47 @@ var tool = false;
                     viewport.translation.y = 0;
                     cornerstone.setViewport(elementMini, viewport);
                     drawMiniRect(element, elementMini);
-                };
-                $scope.zoomOut = function () {
-                    var viewport = cornerstone.getViewport(element);
-                    viewport.scale -= 0.25;
-                    cornerstone.setViewport(element, viewport);
-                    var enabledElementMini = cornerstone.getEnabledElement(elementMini);
-                    clearCanvas(enabledElementMini.canvas);
-                    var tempScale = enabledElementMini.viewport.scale;
-                    cornerstone.reset(elementMini);
-                    viewport.scale = tempScale;
-                    viewport.translation.x = 0;
-                    viewport.translation.y = 0;
-                    cornerstone.setViewport(elementMini, viewport);
-                    drawMiniRect(element, elementMini);
-                };
-                $scope.lRotate = function () {
-                    var viewport = cornerstone.getViewport(element);
-                    viewport.rotation -= 90;
-                    cornerstone.setViewport(element, viewport);
-                    var enabledElementMini = cornerstone.getEnabledElement(elementMini);
-                    clearCanvas(enabledElementMini.canvas);
-                    var viewportMini = cornerstone.getViewport(elementMini);
-                    viewportMini.rotation -= 90;
-                    cornerstone.setViewport(elementMini, viewportMini);
-                    drawMiniRect(element, elementMini);
-                };
-                $scope.rRotate = function () {
-                    var viewport = cornerstone.getViewport(element);
-                    viewport.rotation += 90;
-                    cornerstone.setViewport(element, viewport);
-                    var enabledElementMini = cornerstone.getEnabledElement(elementMini);
-                    clearCanvas(enabledElementMini.canvas);
-                    var viewportMini = cornerstone.getViewport(elementMini);
-                    viewportMini.rotation += 90;
-                    cornerstone.setViewport(elementMini, viewportMini);
-                    drawMiniRect(element, elementMini);
-                }
-
-                //odbij poziomo
-                $scope.hFlip = function () {
-                    var viewport = cornerstone.getViewport(element);
-                    viewport.hflip = !viewport.hflip;
-                    cornerstone.setViewport(element, viewport);
-                    var enabledElementMini = cornerstone.getEnabledElement(elementMini);
-                    clearCanvas(enabledElementMini.canvas);
-                    var viewportMini = cornerstone.getViewport(elementMini);
-                    viewportMini.hflip = !viewportMini.hflip;
-                    cornerstone.setViewport(elementMini, viewportMini);
-                    drawMiniRect(element, elementMini);
-                };
-                //odbij pionowo
-                $scope.vFlip = function () {
-                    var viewport = cornerstone.getViewport(element);
-                    viewport.vflip = !viewport.vflip;
-                    cornerstone.setViewport(element, viewport);
-                    var enabledElementMini = cornerstone.getEnabledElement(elementMini);
-                    clearCanvas(enabledElementMini.canvas);
-                    var viewportMini = cornerstone.getViewport(elementMini);
-                    viewportMini.vflip = !viewportMini.vflip;
-                    cornerstone.setViewport(elementMini, viewportMini);
-                    drawMiniRect(element, elementMini);
-                };
-                $scope.invert = function () {
-                    var viewport = cornerstone.getViewport(element);
-                    if (viewport.invert === true) {
-                        viewport.invert = false;
-                    } else {
-                        viewport.invert = true;
-                    }
-                    cornerstone.setViewport(element, viewport);
-                    var viewportMini = cornerstone.getViewport(elementMini);
-                    if (viewportMini.invert === true) {
-                        viewportMini.invert = false;
-                    } else {
-                        viewportMini.invert = true;
-                    }
-                    cornerstone.setViewport(elementMini, viewportMini);
-                    drawMiniRect(element, elementMini);
-                }
-
-                $scope.defaultViewport = function () {
-                    var enabledElementMini = cornerstone.getEnabledElement(elementMini);
-                    clearCanvas(enabledElementMini.canvas);
-                    cornerstone.reset(elementMini);
-                    cornerstone.reset(element);
-                    document.getElementById("gammaRange").value = 1;
-                    document.getElementById("gammaValue").innerHTML = 1;
-                    globalCounter = 0;
-                    $("#slider-range").slider('values', 0, 0);
-                    $("#slider-range").slider('values', 1, 255);
-                    $("#amount").val(mapRange([0, 255], [0, 1], $("#slider-range").slider("values", 0)).toFixed(2) + ' - ' + mapRange([0, 255], [0, 1], $("#slider-range").slider("values", 1)).toFixed(2));
-                }
+                    $('#defaultViewport').text("enabledElementViewport= " + enabledElement.viewport.scale + "  enabledElementMiniViewport= " + enabledElementMini.viewport.scale);
+                });
+                $(document).mouseup(function (e) {
+                    $(document).unbind('mousemove');
+                    $(document).unbind('mouseup');
+                });
+            }
+        });
+        //przesuwanie obrazu mini
+        $('#dicomMini').mousedown(function (e) {
+            var lastX = e.pageX;
+            var lastY = e.pageY;
+            $(document).mousemove(function (e) {
+                var deltaX = e.pageX - lastX,
+                        deltaY = e.pageY - lastY;
+                lastX = e.pageX;
+                lastY = e.pageY;
+                var viewport = cornerstone.getViewport(element);
+                viewport.translation.x -= (deltaX / viewport.scale);
+                viewport.translation.y -= (deltaY / viewport.scale);
+                cornerstone.setViewport(element, viewport);
+                var enabledElement = cornerstone.getEnabledElement(element);
+                var enabledElementMini = cornerstone.getEnabledElement(elementMini);
+                clearCanvas(enabledElementMini.canvas);
+                var tempScale = enabledElementMini.viewport.scale;
+                cornerstone.reset(elementMini);
+                viewport.scale = tempScale;
+                viewport.translation.x = 0;
+                viewport.translation.y = 0;
+                cornerstone.setViewport(elementMini, viewport);
+                drawMiniRect(element, elementMini);
+                $('#defaultViewport').text("enabledElementViewport= " + enabledElement.viewport.scale + "  enabledElementMiniViewport= " + enabledElementMini.viewport.scale);
             });
-            
+            $(document).mouseup(function (e) {
+                $(document).unbind('mousemove');
+                $(document).unbind('mouseup');
+            });
+        });
+
     app.controller('ToolsController',
-            function ToolsController($scope,imageTools) {
+            function ToolsController($scope, imageTools) {
 
                 $scope.enabledTool = imageTools.enabledTool;
                 $scope.noTool = imageTools.noTool;
@@ -126,13 +246,13 @@ var tool = false;
                 $scope.angle = imageTools.angle;
                 $scope.rectangleROI = imageTools.rectangleROI;
                 $scope.label = imageTools.label;
-                
-                
+
+
             });
     var files = [];
     var x1, x2, y1, y2;
     var deltax, deltay;
-    
+
     var server = false;
     var mapRange = function (from, to, s) {
         return to[0] + (s - from[0]) * (to[1] - to[0]) / (from[1] - from[0]);
@@ -172,41 +292,104 @@ var tool = false;
     $(function () {
         $("#slider").slider();
     });
-//rysowanie kwadratu w minimapie
-    function drawMiniRect(element, elementMini)
-    {
-        var enabledElement = cornerstone.getEnabledElement(element);
-        var enabledElementMini = cornerstone.getEnabledElement(elementMini);
-        var c = enabledElementMini.canvas;
-        var ctx = c.getContext("2d");
-        ctx.strokeStyle = "orange";
-        ctx.lineWidth = "8";
-        var elementRect = element.getBoundingClientRect();
-        var pixelCoordsLeftTop = cornerstone.pageToPixel(element, elementRect.left, elementRect.top);
-        var pixelCoordsRightBottom = cornerstone.pageToPixel(element, elementRect.right, elementRect.bottom);
-        x1 = pixelCoordsLeftTop.x;
-        y1 = pixelCoordsLeftTop.y;
-        x2 = pixelCoordsRightBottom.x - pixelCoordsLeftTop.x;
-        y2 = pixelCoordsRightBottom.y - pixelCoordsLeftTop.y;
-        deltax = enabledElement.viewport.translation.x * enabledElementMini.viewport.scale;
-        deltay = enabledElement.viewport.translation.y * enabledElementMini.viewport.scale;
-        ctx.rect(x1 - deltax, y1 - deltay, x2, y2);
-        ctx.stroke();
-    }
-
-    function clearCanvas(cnv) {
-        var ctx = cnv.getContext('2d'); // gets reference to canvas context
-        ctx.beginPath(); // clear existing drawing paths
-        ctx.save(); // store the current transformation matrix
-
-        // Use the identity matrix while clearing the canvas
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.clearRect(0, 0, cnv.width, cnv.height);
-        ctx.restore(); // restore the transform
-    }
 
 
 
+   function dumpFile(file)
+        {
+            $('#status').removeClass('alert-warning alert-success alert-danger').addClass('alert-info');
+            $('#warnings').empty();
+            //document.getElementById('statusText').innerHTML = 'Status: Loading file, please wait..';
+
+            var reader = new FileReader();
+            reader.onload = function (file) {
+                var arrayBuffer = reader.result;
+                // Here we have the file data as an ArrayBuffer.  dicomParser requires as input a
+                // Uint8Array so we create that here
+                var byteArray = new Uint8Array(arrayBuffer);
+                var kb = byteArray.length / 1024;
+                var mb = kb / 1024;
+                var byteStr = mb > 1 ? mb.toFixed(3) + " MB" : kb.toFixed(0) + " KB";
+                //document.getElementById('statusText').innerHTML = '<span class="glyphicon glyphicon-cog"></span>Status: Parsing ' + byteStr + ' bytes, please wait..';
+
+                // set a short timeout to do the parse so the DOM has time to update itself with the above message
+                setTimeout(function () {
+
+                    var dataSet;
+                    // Invoke the paresDicom function and get back a DataSet object with the contents
+                    try {
+                        var start = new Date().getTime();
+                        dataSet = dicomParser.parseDicom(byteArray);
+                        // Here we call dumpDataSet to update the DOM with the contents of the dataSet
+                        dumpDataSet(dataSet);
+                        var end = new Date().getTime();
+                        var time = end - start;
+                        if (dataSet.warnings.length > 0)
+                        {
+                            $('#status').removeClass('alert-success alert-info alert-danger').addClass('alert-warning');
+                            $('#statusText').html('Status: Warnings encountered while parsing file (file of size ' + byteStr + ' parsed in ' + time + 'ms)');
+                            dataSet.warnings.forEach(function (warning) {
+                                $("#warnings").append('<li>' + warning + '</li>');
+                            });
+                        } else
+                        {
+                            var pixelData = dataSet.elements.x7fe00010;
+                            if (pixelData) {
+                                $('#status').removeClass('alert-warning alert-info alert-danger').addClass('alert-success');
+                                $('#statusText').html('Status: Ready (file of size ' + byteStr + ' parsed in ' + time + 'ms)');
+                            } else
+                            {
+                                $('#status').removeClass('alert-warning alert-info alert-danger').addClass('alert-success');
+                                $('#statusText').html('Status: Ready - no pixel data found (file of size ' + byteStr + ' parsed in ' + time + 'ms)');
+                            }
+                        }
+                    } catch (err)
+                    {
+                        $('#status').removeClass('alert-success alert-info alert-warning').addClass('alert-danger');
+                        document.getElementById('statusText').innerHTML = 'Status: Error - ' + err + ' (file of size ' + byteStr + ' )';
+                    }
+
+                }, 30);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+
+        function dumpDataSet(dataSet)
+        {
+            $('span[data-dicom]').each(function (index, value)
+            {
+                var attr = $(value).attr('data-dicom');
+                var element = dataSet.elements[attr];
+                var text = "";
+                if (element !== undefined)
+                {
+                    var str = dataSet.string(attr);
+                    if (str !== undefined) {
+                        text = str;
+                    }
+                }
+                $(value).text(text);
+            });
+            $('span[data-dicomUint]').each(function (index, value)
+            {
+                var attr = $(value).attr('data-dicomUint');
+                var element = dataSet.elements[attr];
+                var text = "";
+                if (element !== undefined)
+                {
+                    if (element.length === 2)
+                    {
+                        text += dataSet.uint16(attr);
+                    } else if (element.length === 4)
+                    {
+                        text += dataSet.uint32(attr);
+                    }
+                }
+
+                $(value).text(text);
+            });
+        }
 
 
     function loadAndViewImage(imageId) {
@@ -223,12 +406,10 @@ var tool = false;
             cornerstone.displayImage(element, image, viewport);
             var viewportMini = cornerstone.getDefaultViewportForImage(elementMini, image);
             cornerstone.displayImage(elementMini, image, viewportMini);
-            var enabledElement = cornerstone.getEnabledElement(element);
-            var enabledElementMini = cornerstone.getEnabledElement(elementMini);
-            //$('#dicomSize').text("CanvasHeight= " + enabledElement.canvas.height + ", CanvasWidth= " + enabledElement.canvas.width + ", ImageHeight= " + enabledElement.image.height + ", ImageWidt= " + enabledElement.image.width);
-            // $('#dicomMiniSize').text("CanvasHeight= " + enabledElementMini.canvas.height + ", CanvasWidth= " + enabledElementMini.canvas.width + ", ImageHeight= " + enabledElementMini.image.height + ", ImageWidt= " + enabledElementMini.image.width);
+           
+          
 
-            
+
         }, function (err) {
             alert(err);
         });
@@ -238,41 +419,19 @@ var tool = false;
          }*/
     }
 
-    function dumpDataSet(dataSet)
-    {
-        $('span[data-dicom]').each(function (index, value)
-        {
-            var attr = $(value).attr('data-dicom');
-            var element = dataSet.elements[attr];
-            var text = "";
-            if (element !== undefined)
-            {
-                var str = dataSet.string(attr);
-                if (str !== undefined) {
-                    text = str;
-                }
-            }
-            $(value).text(text);
-        });
-        $('span[data-dicomUint]').each(function (index, value)
-        {
-            var attr = $(value).attr('data-dicomUint');
-            var element = dataSet.elements[attr];
-            var text = "";
-            if (element !== undefined)
-            {
-                if (element.length === 2)
-                {
-                    text += dataSet.uint16(attr);
-                } else if (element.length === 4)
-                {
-                    text += dataSet.uint32(attr);
-                }
-            }
-
-            $(value).text(text);
-        });
+    function prepareStack(size) {
+        stackRange = document.getElementById('stackRange');
+        stackRange.value = 0;
+        stackRange.max = size-1;
+        
+        if (size === 1)
+            document.getElementById('stackDiv').style.visibility = "hidden";
+        else
+            document.getElementById('stackDiv').style.visibility = "visible";
+        $('#stackNum').text(parseInt(stackRange.value) + 1 + "/" + (parseInt(stackRange.max) + 1));
     }
+
+    
 
     function selectImage(event) {
         var targetElement = document.getElementById("dicomImage");
@@ -297,6 +456,7 @@ var tool = false;
                 drawMiniRect(targetElement, targetElementMini);
                 stackRange = document.getElementById('stackRange');
                 $('#stackNum').text(parseInt(stackRange.value) + 1 + "/" + (parseInt(stackRange.max) + 1));
+                
                 if (server === false) {
                     dumpFile(files[newImageIdIndex]);
                     document.getElementById("filename").value = files[newImageIdIndex].name.replace("dcm", "png");
@@ -308,64 +468,7 @@ var tool = false;
 
 
 
-    function dumpFile(file)
-    {
-        $('#status').removeClass('alert-warning alert-success alert-danger').addClass('alert-info');
-        $('#warnings').empty();
-        //document.getElementById('statusText').innerHTML = 'Status: Loading file, please wait..';
-
-        var reader = new FileReader();
-        reader.onload = function (file) {
-            var arrayBuffer = reader.result;
-            // Here we have the file data as an ArrayBuffer.  dicomParser requires as input a
-            // Uint8Array so we create that here
-            var byteArray = new Uint8Array(arrayBuffer);
-            var kb = byteArray.length / 1024;
-            var mb = kb / 1024;
-            var byteStr = mb > 1 ? mb.toFixed(3) + " MB" : kb.toFixed(0) + " KB";
-            //document.getElementById('statusText').innerHTML = '<span class="glyphicon glyphicon-cog"></span>Status: Parsing ' + byteStr + ' bytes, please wait..';
-
-            // set a short timeout to do the parse so the DOM has time to update itself with the above message
-            setTimeout(function () {
-
-                var dataSet;
-                // Invoke the paresDicom function and get back a DataSet object with the contents
-                try {
-                    var start = new Date().getTime();
-                    dataSet = dicomParser.parseDicom(byteArray);
-                    // Here we call dumpDataSet to update the DOM with the contents of the dataSet
-                    dumpDataSet(dataSet);
-                    var end = new Date().getTime();
-                    var time = end - start;
-                    if (dataSet.warnings.length > 0)
-                    {
-                        $('#status').removeClass('alert-success alert-info alert-danger').addClass('alert-warning');
-                        $('#statusText').html('Status: Warnings encountered while parsing file (file of size ' + byteStr + ' parsed in ' + time + 'ms)');
-                        dataSet.warnings.forEach(function (warning) {
-                            $("#warnings").append('<li>' + warning + '</li>');
-                        });
-                    } else
-                    {
-                        var pixelData = dataSet.elements.x7fe00010;
-                        if (pixelData) {
-                            $('#status').removeClass('alert-warning alert-info alert-danger').addClass('alert-success');
-                            $('#statusText').html('Status: Ready (file of size ' + byteStr + ' parsed in ' + time + 'ms)');
-                        } else
-                        {
-                            $('#status').removeClass('alert-warning alert-info alert-danger').addClass('alert-success');
-                            $('#statusText').html('Status: Ready - no pixel data found (file of size ' + byteStr + ' parsed in ' + time + 'ms)');
-                        }
-                    }
-                } catch (err)
-                {
-                    $('#status').removeClass('alert-success alert-info alert-warning').addClass('alert-danger');
-                    document.getElementById('statusText').innerHTML = 'Status: Error - ' + err + ' (file of size ' + byteStr + ' )';
-                }
-
-            }, 30);
-        };
-        reader.readAsArrayBuffer(file);
-    }
+    
 
 
     $(document).ready(function () {
@@ -401,20 +504,15 @@ var tool = false;
             loadAndViewImage(imageIds[0]);
             dumpFile(files[0]);
             document.getElementById("filename").value = files[0].name.replace("dcm", "png");
-            stackRange = document.getElementById('stackRange');
-            stackRange.value = 0;
-            stackRange.max = imageIds.length - 1;
-            if (imageIds.length === 1)
-                document.getElementById('stackDiv').style.visibility = "hidden";
-            else
-                document.getElementById('stackDiv').style.visibility = "visible";
-            globalCounter = 0;
-            $('#stackNum').text(parseInt(stackRange.value) + 1 + "/" + (parseInt(stackRange.max) + 1));
+            
+            prepareStack(imageIds.length);
+
+            
             noTool();
         });
-        
+
         $("#stackRange").on("input", selectImage);
-        
+
         function downloadAndView() {
 
             server = true;
@@ -440,25 +538,18 @@ var tool = false;
                     imageIds.push(url + '?frame=' + (i + 0));
                 stack.imageIds = imageIds;
                 loadAndViewImage(imageIds[0]);
-                
-                //document.getElementById("filename").value = files[0].name.replace("dcm", "png");
 
-                stackRange = document.getElementById('stackRange');
-                stackRange.value = 0;
-                stackRange.max = imageIds.length - 1;
-                document.getElementById("filename").value = parseInt(stackRange.value) + 1 + "/" + (parseInt(stackRange.max) + 1 + ".png");
-                if (imageIds.length === 1)
-                    document.getElementById('stackDiv').style.visibility = "hidden";
-                else
-                    document.getElementById('stackDiv').style.visibility = "visible";
-                globalCounter = 0;
-                $('#stackNum').text(parseInt(stackRange.value) + 1 + "/" + (parseInt(stackRange.max) + 1));
+                //document.getElementById("filename").value = files[0].name.replace("dcm", "png");
+                prepareStack(imageIds.length);
+
+ 
                 noTool();
             });
         }
 
 
         $('#gammaRange').on('input', function () {
+            
             var gamma = document.getElementById("gammaRange").value;
             document.getElementById("gammaValue").innerHTML = gamma;
             var viewport = cornerstone.getViewport(element);
@@ -560,12 +651,12 @@ var tool = false;
             if (e.originalEvent.wheelDelta < 0 || e.originalEvent.detail > 0) {
                 var viewport = cornerstone.getViewport(element);
                 viewport.scale -= 0.25;
-                globalCounter -= 0.5;
+
                 cornerstone.setViewport(element, viewport);
             } else {
                 var viewport = cornerstone.getViewport(element);
                 viewport.scale += 0.25;
-                globalCounter += 0.5;
+
                 cornerstone.setViewport(element, viewport);
             }
             var enabledElementMini = cornerstone.getEnabledElement(elementMini);
@@ -585,7 +676,7 @@ var tool = false;
             cornerstoneTools.saveAs(element, filename);
             return false;
         });
-      
+
         $(element).mousemove(function (event)
         {
             var pixelCoords = cornerstone.pageToPixel(element, event.pageX, event.pageY);
@@ -600,12 +691,12 @@ var tool = false;
             $('#pixCoords').text(" X = " + x.toFixed(2) + suffix + ", Y = " + y.toFixed(2) + suffix);
             var viewport = cornerstone.getViewport(element);
             $('#trans').text("Scale= " + viewport.scale + " translationX= " + viewport.translation.x + ", translationY= " + viewport.translation.y);
-            $('#globalCounter').text("GlobalCounter= " + globalCounter);
+
             var enabledElement = cornerstone.getEnabledElement(element);
             var enabledElementMini = cornerstone.getEnabledElement(elementMini);
             var elementRect = element.getBoundingClientRect();
             $('#elRect').text("left: " + elementRect.left + "  right: " + elementRect.right + "  top: " + elementRect.top + " bottom: " + elementRect.bottom);
         });
     });
-    
-}());
+
+}

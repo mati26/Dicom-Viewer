@@ -1,60 +1,67 @@
 (function () {
 
-    var imageTools = function () {
+    var ImageTools = function (Elements) {
 
+        var element;
+        var elementMini;
         var enabledTool = 'noTool';
-        var element = $('#dicomImage').get(0);
 
-        function disableAllTools()
-        {
+        var setElements = function (e, eMini) {
+            element = e;
+            elementMini = eMini;
+        }(Elements.element, Elements.elementMini);
+
+        var setTool = function (tool) {
+            enabledTool = tool;
+        }
+
+        var getTool = function () {
+            return enabledTool;
+        }
+
+        var disableAllTools = function () {
             cornerstoneTools.mouseInput.disable(element);
             cornerstoneTools.length.deactivate(element, 1);
             cornerstoneTools.angle.deactivate(element, 1);
             cornerstoneTools.rectangleRoi.deactivate(element, 1);
             cornerstoneTools.arrowAnnotate.deactivate(element, 1);
-            tool = false;
         }
 
         var noTool = function () {
-            this.enabledTool = 'noTool';
             disableAllTools();
+            setTool('noTool');
         }
 
         var length = function () {
-
-            this.enabledTool = 'length';
             disableAllTools();
-            tool = true;
+            setTool('length');
             cornerstoneTools.mouseInput.enable(element);
             cornerstoneTools.length.activate(element, 1);
         };
 
         var angle = function () {
-            this.enabledTool = 'angle';
             disableAllTools();
-            tool = true;
+            setTool('angle');
             cornerstoneTools.mouseInput.enable(element);
             cornerstoneTools.angle.activate(element, 1);
         };
 
         var rectangleROI = function () {
-            this.enabledTool = 'rectangleROI';
             disableAllTools();
-            tool = true;
+            setTool('rectangleROI');
             cornerstoneTools.mouseInput.enable(element);
             cornerstoneTools.rectangleRoi.activate(element, 1);
         };
 
         var label = function () {
-            this.enabledTool = 'label';
             disableAllTools();
-            tool = true;
+            setTool('label');
             cornerstoneTools.mouseInput.enable(element);
             cornerstoneTools.arrowAnnotate.activate(element, 1);
         };
 
         return {
-            enabledTool: enabledTool,
+            getTool: getTool,
             noTool: noTool,
             length: length,
             angle: angle,
@@ -63,7 +70,6 @@
         };
     };
 
-
     var module = angular.module("DicomViewer");
-    module.factory("imageTools", imageTools);
+    module.factory("ImageTools", ImageTools);
 }());
